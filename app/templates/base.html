@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full" x-data="{dark: localStorage.getItem('theme')==='dark'}" x-init="$watch('dark', v=>{localStorage.setItem('theme', v?'dark':'light'); document.documentElement.classList.toggle('dark', v)})" :class="{'dark': dark}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}DevTasks{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          colors: { brand: { 50:'#eff6ff', 500:'#2563eb', 600:'#1d4ed8', 700:'#1e40af'} }
+        }
+      }
+    }
+  </script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  {% block head %}{% endblock %}
+</head>
+<body class="h-full bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col">
+  <nav class="border-b border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center gap-6">
+      <a href="{{ url_for('main.index') }}" class="text-lg font-semibold tracking-tight flex items-center gap-2">
+        <span class="inline-block w-2.5 h-2.5 rounded-full bg-brand-600 animate-pulse"></span>
+        DevTasks
+      </a>
+      <div class="ml-auto flex items-center gap-4 text-sm">
+        {% if current_user.is_authenticated %}
+          {% set display_name = current_user.name or (current_user.email.split('@')[0]) %}
+          <a href="{{ url_for('auth.profile') }}" class="flex items-center gap-3 group">
+            <div class="relative">
+              {% if current_user.avatar %}
+                <img src="{{ current_user.avatar }}" alt="avatar" class="w-9 h-9 rounded-full object-cover border border-slate-300 dark:border-slate-600 bg-slate-200 dark:bg-slate-700" onerror="this.onerror=null;this.remove();">
+              {% else %}
+                <div class="w-9 h-9 rounded-full bg-gradient-to-br from-brand-600 to-brand-700 text-white flex items-center justify-center text-xs font-semibold border border-brand-500/60">{{ (display_name[0] if display_name else 'U')|upper }}</div>
+              {% endif %}
+              {% if current_user.is_admin %}<span class="absolute -bottom-1 -right-1 text-[9px] px-1.5 py-0.5 rounded bg-amber-500 text-white font-semibold shadow">A</span>{% endif %}
+            </div>
+            <div class="hidden sm:flex flex-col leading-tight">
+              <span class="font-medium text-slate-700 dark:text-slate-200 group-hover:underline">{{ display_name }}</span>
+              <span class="text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-[120px]">{{ current_user.email }}</span>
+            </div>
+          </a>
+          {% if current_user.is_admin %}
+            <a href="{{ url_for('admin.dashboard') }}" class="px-3 py-1.5 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-brand-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-medium">Admin</a>
+          {% endif %}
+          <a href="{{ url_for('auth.logout') }}" class="px-3 py-1.5 rounded-md bg-red-50 dark:bg-red-900/40 hover:bg-red-100 dark:hover:bg-red-900/60 text-red-600 dark:text-red-300 font-medium">Logout</a>
+        {% else %}
+          <a href="{{ url_for('auth.login') }}" class="px-3 py-1.5 rounded-md bg-brand-600 hover:bg-brand-700 text-white font-medium">Login</a>
+          <a href="{{ url_for('auth.register') }}" class="px-3 py-1.5 rounded-md border border-brand-600 text-brand-600 hover:bg-brand-50 font-medium">Register</a>
+        {% endif %}
+        <button @click="dark=!dark" class="w-9 h-9 flex items-center justify-center rounded-md border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800" :title="dark?'Light mode':'Dark mode'">
+          <svg x-show="!dark" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364 6.364-1.414-1.414M8.05 8.05 6.636 6.636m0 10.728 1.414-1.414m9.9-9.9-1.414 1.414M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"/></svg>
+          <svg x-show="dark" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12.79A9 9 0 0 1 11.21 3 7 7 0 0 0 12 17a7 7 0 0 0 9-4.21Z"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+  <main class="flex-1 w-full max-w-5xl mx-auto px-4 py-8">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="space-y-2 mb-6">
+          {% for category, msg in messages %}
+            <div class="px-4 py-3 rounded-lg text-sm font-medium shadow-sm border flex items-start gap-3
+              {% if category=='success' %}bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300
+              {% elif category=='danger' %}bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300
+              {% elif category=='warning' %}bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300
+              {% else %}bg-sky-50 dark:bg-sky-900/20 border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300{% endif %}">
+              <span>{{ msg }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="text-center text-[11px] tracking-wide text-slate-500 dark:text-slate-500 py-6">
+    <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row gap-2 sm:gap-4 justify-between items-center">
+      <span>&copy; {{ 2025 }} DevTasks. All rights reserved.</span>
+      <span class="text-slate-400">Built with Flask + Tailwind</span>
+    </div>
+  </footer>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

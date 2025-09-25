@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Register · DevTasks{% endblock %}
+{% block content %}
+<div class="max-w-md mx-auto">
+  <div class="mb-10 text-center space-y-2">
+    <h1 class="text-2xl font-semibold tracking-tight">Create your account</h1>
+    <p class="text-sm text-slate-500 dark:text-slate-400">Spin up a workspace to manage tasks faster.</p>
+  </div>
+  <div class="p-8 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
+    <form method="POST" class="space-y-5">
+      {{ form.hidden_tag() }}
+      <div class="space-y-1">
+        {{ form.email.label(class_='block text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400') }}
+        {{ form.email(class_='w-full text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500/50') }}
+        {% for e in form.email.errors %}<p class="text-red-500 text-xs">{{ e }}</p>{% endfor %}
+      </div>
+      <div class="space-y-1">
+        {{ form.password.label(class_='block text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400') }}
+        {{ form.password(class_='w-full text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500/50') }}
+        {% for e in form.password.errors %}<p class="text-red-500 text-xs">{{ e }}</p>{% endfor %}
+      </div>
+      <button class="w-full inline-flex justify-center items-center gap-2 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2.5 shadow-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5v14"/></svg>
+        <span>Create Account</span>
+      </button>
+    </form>
+    <div class="mt-8 text-center text-xs text-slate-500 dark:text-slate-400">Already registered? <a href="{{ url_for('auth.login') }}" class="text-brand-600 dark:text-brand-400 font-medium hover:underline">Login</a></div>
+  </div>
+</div>
+{% endblock %}

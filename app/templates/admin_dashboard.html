@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block title %}Admin · DevTasks{% endblock %}
+{% block content %}
+<div class="space-y-8">
+  <div class="flex items-center justify-between flex-wrap gap-4">
+    <div>
+      <h1 class="text-xl font-semibold tracking-tight">Administration</h1>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">System metrics & user oversight.</p>
+    </div>
+    <div class="flex flex-wrap gap-3 text-[11px]">
+      <span class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium">Users: {{ users|length }}</span>
+      <span class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium">Tasks: {{ total_tasks }}</span>
+      <span class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium">Completed: {{ completed_tasks }}</span>
+    </div>
+  </div>
+
+  <div class="grid lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm flex flex-col space-y-6 overflow-y-auto max-h-[38rem]">
+      <h2 class="text-sm font-semibold tracking-wide uppercase text-slate-500 dark:text-slate-400">User Task Overview</h2>
+      {% for u in users %}
+        <div class="border border-slate-200 dark:border-slate-800 rounded-xl p-4 bg-slate-50 dark:bg-slate-800/30">
+          <div class="flex items-start justify-between gap-4 mb-3">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand-600 to-brand-700 text-white flex items-center justify-center text-xs font-semibold shadow-sm">{{ u.email[0]|upper }}</div>
+              <div>
+                <p class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ u.email }}</p>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">{{ u.tasks|length }} tasks total</p>
+              </div>
+            </div>
+            {% if u.is_admin %}<span class="px-2 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-300 border border-amber-500/30 text-[10px] font-medium h-fit">ADMIN</span>{% endif %}
+          </div>
+          <ul class="divide-y divide-slate-200 dark:divide-slate-700 text-sm">
+            {% for t in user_tasks[u.id] %}
+            <li class="py-2 flex items-start gap-3">
+              <div class="mt-1 w-2 h-2 rounded-full {% if t.completed %}bg-emerald-500{% else %}bg-amber-500{% endif %}"></div>
+              <div class="flex-1 min-w-0">
+                <div class="flex justify-between flex-wrap gap-2">
+                  <p class="font-medium text-slate-700 dark:text-slate-200 truncate">{{ t.title }}</p>
+                  <span class="text-[10px] px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">{{ t.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                </div>
+                {% if t.completed %}<span class="text-[10px] text-emerald-600 dark:text-emerald-400">Completed</span>{% endif %}
+              </div>
+            </li>
+            {% else %}
+            <li class="py-2 text-[11px] text-slate-400">No tasks yet.</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% else %}
+        <p class="text-xs text-slate-500 dark:text-slate-400">No users.</p>
+      {% endfor %}
+    </div>
+    <div class="p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
+      <h2 class="text-sm font-semibold tracking-wide uppercase text-slate-500 dark:text-slate-400 mb-4">Users</h2>
+      <form id="new-user-form" class="mb-5 space-y-3 text-xs">
+        <div class="flex gap-2">
+          <input required type="email" name="email" placeholder="user@example.com" class="flex-1 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500/50" />
+          <input type="text" name="password" placeholder="password (optional)" class="flex-1 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500/50" />
+        </div>
+        <div class="flex items-center gap-3">
+          <label class="inline-flex items-center gap-2 text-[11px] font-medium text-slate-600 dark:text-slate-300">
+            <input type="checkbox" name="is_admin" class="rounded border-slate-300 dark:border-slate-600" /> Admin
+          </label>
+          <button class="ml-auto inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-[11px] font-medium">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            Create
+          </button>
+        </div>
+        <p id="new-user-error" class="hidden text-[11px] text-red-500"></p>
+      </form>
+      <ul id="user-list" class="space-y-3 text-sm">
+        {% for u in users %}
+        <li class="group relative p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 flex items-start gap-3">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand-600 to-brand-700 text-white flex items-center justify-center text-xs font-semibold shadow-sm">{{ u.email[0]|upper }}</div>
+          <div class="flex-1 min-w-0">
+            <p class="font-medium text-slate-700 dark:text-slate-200 truncate">{{ u.email }}</p>
+            <div class="flex flex-wrap gap-2 mt-1 text-[10px]">
+              {% if u.is_admin %}<span class="px-2 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-300 border border-amber-500/30 font-medium">ADMIN</span>{% endif %}
+              <span class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium border border-slate-300 dark:border-slate-600">{{ u.tasks|length }} tasks</span>
+            </div>
+          </div>
+          {% if not u.is_admin %}
+          <form method="POST" action="{{ url_for('admin.delete_user', user_id=u.id) }}" class="opacity-0 group-hover:opacity-100 transition" onsubmit="return confirm('Delete user?')">
+            <button class="px-2 py-1 rounded-md text-[10px] font-medium bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-200 dark:border-red-800">Delete</button>
+          </form>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% block scripts %}
+<script>
+  const newUserForm = document.getElementById('new-user-form');
+  const userList = document.getElementById('user-list');
+  const err = document.getElementById('new-user-error');
+  newUserForm.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    err.classList.add('hidden');
+    const formData = new FormData(newUserForm);
+    const res = await fetch('{{ url_for('admin.create_user') }}', {
+      method: 'POST',
+      headers: {'Accept':'application/json'},
+      body: formData
+    });
+    if(res.ok){
+      const data = await res.json();
+      const u = data.user;
+      const li = document.createElement('li');
+      li.className = 'group relative p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 flex items-start gap-3';
+      li.innerHTML = `
+        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand-600 to-brand-700 text-white flex items-center justify-center text-xs font-semibold shadow-sm">${u.email[0].toUpperCase()}</div>
+        <div class="flex-1 min-w-0">
+          <p class="font-medium text-slate-700 dark:text-slate-200 truncate">${u.email}</p>
+          <div class="flex flex-wrap gap-2 mt-1 text-[10px]">${u.is_admin?'<span class="px-2 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-300 border border-amber-500/30 font-medium">ADMIN</span>':''}<span class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium border border-slate-300 dark:border-slate-600">0 tasks</span></div>
+        </div>
+        ${u.is_admin ? '' : `<form method="POST" action="/admin/user/${u.id}/delete" class="opacity-0 group-hover:opacity-100 transition" onsubmit="return confirm('Delete user?')"><button class="px-2 py-1 rounded-md text-[10px] font-medium bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-200 dark:border-red-800">Delete</button></form>`}
+      `;
+      userList.prepend(li);
+      newUserForm.reset();
+    } else {
+      const data = await res.json().catch(()=>({message:'Unknown error'}));
+      err.textContent = data.message || 'Failed to create user';
+      err.classList.remove('hidden');
+    }
+  });
+</script>
+{% endblock %}
+{% endblock %}

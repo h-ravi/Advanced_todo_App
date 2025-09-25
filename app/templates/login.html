@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Login · DevTasks{% endblock %}
+{% block content %}
+<div class="max-w-md mx-auto">
+  <div class="mb-10 text-center space-y-2">
+    <h1 class="text-2xl font-semibold tracking-tight">Welcome back</h1>
+    <p class="text-sm text-slate-500 dark:text-slate-400">Authenticate to access your tasks dashboard.</p>
+  </div>
+  <div class="p-8 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
+    <form method="POST" class="space-y-5">
+      {{ form.hidden_tag() }}
+      <div class="space-y-1">
+        {{ form.email.label(class_='block text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400') }}
+        {{ form.email(class_='w-full text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500/50') }}
+        {% for e in form.email.errors %}<p class="text-red-500 text-xs">{{ e }}</p>{% endfor %}
+      </div>
+      <div class="space-y-1">
+        {{ form.password.label(class_='block text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400') }}
+        {{ form.password(class_='w-full text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500/50') }}
+        {% for e in form.password.errors %}<p class="text-red-500 text-xs">{{ e }}</p>{% endfor %}
+      </div>
+      <div class="flex items-center gap-2">
+        {{ form.remember(class_='rounded border-slate-300 dark:border-slate-600') }}
+        {{ form.remember.label(class_='text-xs font-medium text-slate-600 dark:text-slate-300') }}
+      </div>
+      <button class="w-full inline-flex justify-center items-center gap-2 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2.5 shadow-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5v14"/></svg>
+        <span>Login</span>
+      </button>
+    </form>
+    <div class="mt-8 space-y-3">
+      <div class="text-center text-[11px] uppercase tracking-wider text-slate-400">Or continue with</div>
+      <div class="grid grid-cols-3 gap-3 text-[11px] font-medium">
+        <a class="flex items-center justify-center gap-1 rounded-lg border border-slate-300 dark:border-slate-700 py-2 hover:bg-slate-50 dark:hover:bg-slate-800" href="{{ url_for('auth.oauth_login', provider='google') }}">
+          <span>Google</span>
+        </a>
+        <a class="flex items-center justify-center gap-1 rounded-lg border border-slate-300 dark:border-slate-700 py-2 hover:bg-slate-50 dark:hover:bg-slate-800" href="{{ url_for('auth.oauth_login', provider='github') }}">
+          <span>GitHub</span>
+        </a>
+        <a class="flex items-center justify-center gap-1 rounded-lg border border-slate-300 dark:border-slate-700 py-2 hover:bg-slate-50 dark:hover:bg-slate-800" href="{{ url_for('auth.oauth_login', provider='facebook') }}">
+          <span>Facebook</span>
+        </a>
+      </div>
+      <p class="text-center text-xs text-slate-500 dark:text-slate-400">No account? <a href="{{ url_for('auth.register') }}" class="text-brand-600 dark:text-brand-400 font-medium hover:underline">Register</a></p>
+    </div>
+  </div>
+</div>
+{% endblock %}

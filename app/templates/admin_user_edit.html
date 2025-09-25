@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Edit User · DevTasks{% endblock %}
+{% block content %}
+<div class="max-w-xl mx-auto space-y-8">
+  <div>
+    <h1 class="text-xl font-semibold tracking-tight">Edit User</h1>
+    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Modify identity, role and credentials.</p>
+  </div>
+  <form method="POST" class="space-y-6 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
+    {{ form.hidden_tag() }}
+    <div class="space-y-1">
+      {{ form.email.label(class_='block text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400') }}
+      {{ form.email(class_='w-full text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2') }}
+    </div>
+    <div class="space-y-1">
+      {{ form.name.label(class_='block text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400') }}
+      {{ form.name(class_='w-full text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2') }}
+    </div>
+    <div class="space-y-1">
+      {{ form.new_password.label(class_='block text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400') }}
+      {{ form.new_password(class_='w-full text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2') }}
+      <p class="text-[10px] text-slate-400">Leave blank to keep current password.</p>
+    </div>
+    <div class="flex items-center gap-2">
+      {{ form.is_admin(class_='rounded border-slate-300 dark:border-slate-600') }}
+      {{ form.is_admin.label(class_='text-xs font-medium text-slate-600 dark:text-slate-300') }}
+    </div>
+    <div class="flex justify-end">
+      {{ form.submit(class_='px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium') }}
+    </div>
+  </form>
+</div>
+{% endblock %}

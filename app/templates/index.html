@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% block title %}Tasks · DevTasks{% endblock %}
+{% block content %}
+<div class="grid lg:grid-cols-3 gap-8">
+  <section class="lg:col-span-1 space-y-6">
+    <div class="p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
+      <h2 class="text-base font-semibold mb-4 flex items-center gap-2">
+        <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+        New Task
+      </h2>
+  <form id="task-form" method="POST" action="{{ url_for('main.add_task') }}" class="space-y-4">
+        {{ form.hidden_tag() }}
+        <div class="space-y-1">
+          {{ form.title.label(class_='block text-xs font-medium tracking-wide uppercase text-slate-500 dark:text-slate-400') }}
+          {{ form.title(class_='w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/50') }}
+          {% for e in form.title.errors %}<p class="text-red-500 text-xs">{{ e }}</p>{% endfor %}
+        </div>
+        <div class="space-y-1">
+          {{ form.description.label(class_='block text-xs font-medium tracking-wide uppercase text-slate-500 dark:text-slate-400') }}
+          {{ form.description(class_='w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm h-28 resize-y focus:outline-none focus:ring-2 focus:ring-brand-500/50') }}
+        </div>
+        <div class="flex justify-end">
+          <button id="add-task-btn" type="submit" class="inline-flex items-center gap-2 rounded-lg bg-brand-600 hover:bg-brand-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-medium px-4 py-2 shadow-sm">
+            <span class="icon-add flex items-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg></span>
+            <span class="icon-spinner hidden items-center"><svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/></svg></span>
+            <span>Add Task</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  <div id="summary-card" class="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-slate-200 shadow-sm relative overflow-hidden">
+      <div class="absolute -top-10 -right-10 w-40 h-40 bg-brand-600/10 rounded-full blur-2xl"></div>
+      <h3 class="text-sm font-semibold mb-2 tracking-wide uppercase text-slate-400">Summary</h3>
+  <p id="total-count" class="text-4xl font-bold leading-tight">{{ tasks|length }}</p>
+      <p class="text-xs mt-1 text-slate-400">Total tasks for your account</p>
+      <div class="mt-4 flex flex-wrap gap-2 text-[11px]">
+  <span id="completed-count" class="px-2 py-1 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">{{ tasks|selectattr('completed')|list|length }} Completed</span>
+  <span id="active-count" class="px-2 py-1 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30">{{ tasks|rejectattr('completed')|list|length }} Active</span>
+      </div>
+    </div>
+  </section>
+  <section class="lg:col-span-2 space-y-5">
+    <div class="flex items-center justify-between flex-wrap gap-4">
+      <h2 class="text-base font-semibold tracking-tight">Your Tasks</h2>
+      <div class="flex items-center gap-2 text-[11px] font-medium">
+        <a href="{{ url_for('main.index') }}" class="px-3 py-1.5 rounded-md border text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 {% if not status %}bg-brand-600 text-white border-brand-600 hover:bg-brand-600{% endif %}">All</a>
+        <a href="{{ url_for('main.index', status='active') }}" class="px-3 py-1.5 rounded-md border text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 {% if status=='active' %}bg-brand-600 text-white border-brand-600 hover:bg-brand-600{% endif %}">Active</a>
+        <a href="{{ url_for('main.index', status='completed') }}" class="px-3 py-1.5 rounded-md border text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 {% if status=='completed' %}bg-brand-600 text-white border-brand-600 hover:bg-brand-600{% endif %}">Completed</a>
+      </div>
+    </div>
+    <ul class="space-y-3" id="task-list">
+      {% for task in tasks %}
+      <li class="group relative p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm flex gap-4 items-start" data-task-id="{{ task.id }}">
+        <button data-task="{{ task.id }}" class="toggle-task shrink-0 mt-1 w-5 h-5 rounded-md border flex items-center justify-center text-[10px] font-bold transition
+          {% if task.completed %}bg-emerald-500 border-emerald-500 text-white shadow-inner{% else %}border-slate-300 dark:border-slate-600 hover:border-brand-500 hover:bg-brand-50 dark:hover:bg-slate-700{% endif %}">
+          {% if task.completed %}✓{% endif %}
+        </button>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-start gap-2">
+            <h3 class="text-sm font-medium leading-tight {% if task.completed %}line-through text-slate-400 dark:text-slate-500{% endif %}">{{ task.title }}</h3>
+          </div>
+          {% if task.description %}
+          <p class="mt-1 text-xs leading-relaxed text-slate-600 dark:text-slate-300 whitespace-pre-line">{{ task.description }}</p>
+          {% endif %}
+          <div class="mt-2 flex items-center gap-3 text-[11px] text-slate-400 dark:text-slate-500">
+            <span class="inline-flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>{{ task.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+            {% if task.completed %}<span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Done</span>{% endif %}
+          </div>
+        </div>
+        <form method="POST" action="{{ url_for('main.delete_task', task_id=task.id) }}" class="opacity-0 group-hover:opacity-100 transition flex items-start" onsubmit="return confirm('Delete task?')">
+          <button class="px-2 py-1 rounded-md text-[11px] font-medium bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-200 dark:border-red-800">Delete</button>
+        </form>
+      </li>
+      {% else %}
+      <li class="p-8 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 text-center text-slate-500 dark:text-slate-400 text-sm">No tasks yet — create your first one on the left.</li>
+      {% endfor %}
+    </ul>
+  </section>
+</div>
+
+{% block scripts %}
+<script>
+  // Task toggle (existing logic retained)
+  function bindToggleButtons(root=document){
+    root.querySelectorAll('.toggle-task').forEach(btn => {
+      if(btn.dataset.bound) return; btn.dataset.bound = '1';
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const id = btn.dataset.task;
+        const res = await fetch(`/task/${id}/toggle`, {method: 'POST'});
+        if (res.ok) {
+          const data = await res.json();
+          const li = btn.closest('li');
+          if (data.completed) {
+            btn.classList.add('bg-emerald-500','border-emerald-500','text-white','shadow-inner');
+            btn.innerHTML = '✓';
+            li.querySelector('h3').classList.add('line-through','text-slate-400','dark:text-slate-500');
+            if(!li.querySelector('.done-pill')){
+              const done = document.createElement('span');
+              done.className='done-pill inline-flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400';
+              done.innerHTML='<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Done';
+              li.querySelector('div.mt-2').appendChild(done);
+            }
+          } else {
+            btn.className='toggle-task shrink-0 mt-1 w-5 h-5 rounded-md border flex items-center justify-center text-[10px] font-bold transition border-slate-300 dark:border-slate-600 hover:border-brand-500 hover:bg-brand-50 dark:hover:bg-slate-700';
+            btn.textContent='';
+            const h3 = li.querySelector('h3');
+            h3.classList.remove('line-through','text-slate-400','dark:text-slate-500');
+            const done = li.querySelector('.done-pill');
+            if(done) done.remove();
+          }
+        }
+      });
+    });
+  }
+  bindToggleButtons();
+
+  // AJAX add task
+  const taskForm = document.getElementById('task-form');
+  const addBtn = document.getElementById('add-task-btn');
+  taskForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if(addBtn.disabled) return;
+    addBtn.disabled = true;
+    addBtn.querySelector('.icon-add').classList.add('hidden');
+    addBtn.querySelector('.icon-spinner').classList.remove('hidden');
+    const formData = new FormData(taskForm);
+    try {
+      const res = await fetch(taskForm.action, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'X-Requested-With': 'fetch' },
+        body: formData
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const list = document.getElementById('task-list');
+        list.insertAdjacentHTML('afterbegin', data.html);
+        bindToggleButtons(list.firstElementChild);
+        taskForm.reset();
+        document.getElementById('total-count').textContent = data.counts.total;
+        document.getElementById('completed-count').textContent = data.counts.completed + ' Completed';
+        document.getElementById('active-count').textContent = data.counts.active + ' Active';
+      } else {
+        console.warn('Task creation failed');
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      addBtn.disabled = false;
+      addBtn.querySelector('.icon-add').classList.remove('hidden');
+      addBtn.querySelector('.icon-spinner').classList.add('hidden');
+    }
+  });
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Profile · DevTasks{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-8">
+  <div>
+    <h1 class="text-xl font-semibold tracking-tight">Your Profile</h1>
+    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Manage personal details and security settings.</p>
+  </div>
+  <form method="POST" class="space-y-6 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
+    {{ form.hidden_tag() }}
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="space-y-1">
+        {{ form.name.label(class_='block text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400') }}
+        {{ form.name(class_='w-full text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2') }}
+      </div>
+      <div class="space-y-1">
+        {{ form.avatar.label(class_='block text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400') }}
+        {{ form.avatar(class_='w-full text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2') }}
+      </div>
+      <div class="md:col-span-2 space-y-1">
+        {{ form.bio.label(class_='block text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400') }}
+        {{ form.bio(class_='w-full text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 h-32 resize-y') }}
+      </div>
+    </div>
+    <div class="space-y-4">
+      <h2 class="text-sm font-semibold tracking-wide uppercase text-slate-500 dark:text-slate-400">Change Password</h2>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="space-y-1">
+          {{ form.current_password.label(class_='block text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400') }}
+          {{ form.current_password(class_='w-full text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2') }}
+        </div>
+        <div class="space-y-1">
+          {{ form.new_password.label(class_='block text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400') }}
+          {{ form.new_password(class_='w-full text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2') }}
+        </div>
+      </div>
+    </div>
+    <div class="flex justify-end">
+      {{ form.submit(class_='px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium') }}
+    </div>
+  </form>
+</div>
+{% endblock %}
